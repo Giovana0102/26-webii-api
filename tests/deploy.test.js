@@ -157,12 +157,15 @@ describe("Prática - Deploy e CI", () => {
     const setupNode = findActionStep(test, "actions/setup-node");
     expect(setupNode.uses).toBe("actions/setup-node@v7");
     expect(setupNode.with).toEqual({ "node-version": 26, cache: "npm" });
-    expect(runCommands(test)).toEqual([
+    const commands = runCommands(test);
+    expect(commands.slice(0, 3)).toEqual([
       "npm ci",
       "npm run db:generate",
       "npm run db:migrate",
-      "npm test",
     ]);
+    // O último step executa testes: test:pratica nesta aula ou a suíte completa.
+    expect(commands.slice(3)).toHaveLength(1);
+    expect(["npm run test:pratica", "npm test"]).toContain(commands[3]);
   });
 
   it("o workflow lê o banco de testes de um secret, sem credenciais no arquivo", async () => {
@@ -203,6 +206,12 @@ describe("Atividade - Job de qualidade no CI", () => {
     const { jobs } = await readWorkflow();
 
     expect(jobs.test.needs).toBe("quality");
+  });
+
+  it("o job test executa a suíte completa, com os critérios da atividade", async () => {
+    const { jobs } = await readWorkflow();
+
+    expect(runCommands(jobs.test).at(-1)).toBe("npm test");
   });
 
   it("o job quality não recebe o secret do banco", async () => {

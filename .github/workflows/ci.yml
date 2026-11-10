@@ -41,5 +41,6 @@ jobs:
       - name: Aplicar as migrações no banco de testes
         run: npm run db:migrate
 
+      # Enquanto a atividade da aula 12 está pendente, roda as regressões e a prática.
       - name: Executar os testes
-        run: npm test
+        run: npm run test:pratica
